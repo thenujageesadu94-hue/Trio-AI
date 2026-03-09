@@ -4,43 +4,41 @@ from openai import OpenAI
 
 app = Flask(__name__)
 
-# 🔒 මෙන්න උඹේ Token එක මම කෙලින්ම කෝඩ් එකට දැම්මා.
-# (පස්සේ කාලෙක මේක Environment Variables වලට දාගන්න එක හොඳයි මචං)
-token = "ghp_Y1nS9tU2mE6rZ4xQ8vP0aW7bC3dX5fG6hI9j" 
+# ඔයාගේ GitHub Token එක මෙතන තියෙනවා
+TOKEN = "ghp_m0Vn0EbeGj1m3o9oF86V6850M0M0N0E0"
 
+# OpenAI Client එක හරියටම Setup කිරීම
 client = OpenAI(
     base_url="https://models.inference.ai.azure.com",
-    api_key=token,
+    api_key=TOKEN
 )
 
 @app.route("/")
 def index():
+    # Templates ෆෝල්ඩර් එක ඇතුළේ index.html තියෙන්නම ඕනේ
     return render_template("index.html")
 
 @app.route("/ask", methods=["POST"])
 def ask():
     try:
         data = request.get_json()
+        if not data or "question" not in data:
+            return jsonify({"answer": "ප්‍රශ්නයක් ලැබුණේ නැහැ මචං!"})
+
         user_input = data.get("question")
         
-        system_prompt = """Your name is Trio AI. 
-        1. If user asks in Sinhala/Singlish, answer in Sinhala Script (සිංහල අකුරෙන්).
-        2. If user writes other languages in English letters, answer in their Native Script.
-        3. Be friendly like a Sri Lankan friend (machan, macho).
-        4. Use Markdown for formatting."""
-
+        # AI එකෙන් Response එක ලබා ගැනීම
         response = client.chat.completions.create(
             messages=[
-                {"role": "system", "content": system_prompt},
+                {"role": "system", "content": "Your name is Trio AI. Be a friendly Sri Lankan friend. Answer in Sinhala script for Sinhala/Singlish questions."},
                 {"role": "user", "content": user_input}
             ],
-            model="gpt-4o-mini",
-            temperature=0.85
+            model="gpt-4o-mini"
         )
         return jsonify({"answer": response.choices[0].message.content})
     except Exception as e:
-        print(f"Error: {e}")
-        return jsonify({"answer": "⚠️ Connection error. API එකේ පොඩි අවුලක් තියෙනවා."})
+        # මොකක් හරි Error එකක් වුණොත් ඒක මෙතනින් බලාගන්න පුළුවන්
+        return jsonify({"answer": f"⚠️ Connection error: {str(e)}"})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
