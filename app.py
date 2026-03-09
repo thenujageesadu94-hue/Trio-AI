@@ -4,10 +4,10 @@ from openai import OpenAI
 
 app = Flask(__name__)
 
-# ඔයාගේ GitHub Token එක මෙතන තියෙනවා
-TOKEN = "ghp_m0Vn0EbeGj1m3o9oF86V6850M0M0N0E0"
+# මෙන්න උඹේ අලුත් Token එක (පරිස්සමෙන් පාවිච්චි කරපන්)
+TOKEN = "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"
 
-# OpenAI Client එක හරියටම Setup කිරීම
+# OpenAI Client එක Setup කිරීම
 client = OpenAI(
     base_url="https://models.inference.ai.azure.com",
     api_key=TOKEN
@@ -15,7 +15,6 @@ client = OpenAI(
 
 @app.route("/")
 def index():
-    # Templates ෆෝල්ඩර් එක ඇතුළේ index.html තියෙන්නම ඕනේ
     return render_template("index.html")
 
 @app.route("/ask", methods=["POST"])
@@ -27,7 +26,6 @@ def ask():
 
         user_input = data.get("question")
         
-        # AI එකෙන් Response එක ලබා ගැනීම
         response = client.chat.completions.create(
             messages=[
                 {"role": "system", "content": "Your name is Trio AI. Be a friendly Sri Lankan friend. Answer in Sinhala script for Sinhala/Singlish questions."},
@@ -37,7 +35,6 @@ def ask():
         )
         return jsonify({"answer": response.choices[0].message.content})
     except Exception as e:
-        # මොකක් හරි Error එකක් වුණොත් ඒක මෙතනින් බලාගන්න පුළුවන්
         return jsonify({"answer": f"⚠️ Connection error: {str(e)}"})
 
 if __name__ == "__main__":
