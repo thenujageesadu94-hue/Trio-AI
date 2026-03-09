@@ -1,2 +1,4 @@
+
 flask
-openai
+openai>=1.0.0
+httpx==0.24.1
